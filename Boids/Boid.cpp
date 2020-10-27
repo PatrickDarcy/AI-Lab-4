@@ -24,7 +24,7 @@ using namespace std;
 // =============================================== //
 
 // Adds force Pvector to current force Pvector
-void Boid::applyForce(Pvector force)
+void Boid::applyForce(Pvector& force)
 {
 	acceleration.addVector(force);
 }
@@ -169,7 +169,7 @@ Pvector Boid::Cohesion(vector<Boid> Boids)
 
 // Seek function limits the maxSpeed, finds necessary steering force and
 // normalizes the vectors.
-Pvector Boid::seek(Pvector v)
+Pvector Boid::seek(Pvector& v)
 {
 	Pvector desired;
 	desired.subVector(v);  // A vector pointing from the location to the target
@@ -235,7 +235,7 @@ void Boid::borders()
 
 // Calculates the angle for the velocity of a boid which allows the visual 
 // image to rotate in the direction that it is going in.
-float Boid::angle(Pvector v)
+float Boid::angle(Pvector& v)
 {
 	// From the definition of the dot product
 	float angle = (float)(atan2(v.x, -v.y) * 180 / PI);
@@ -253,8 +253,28 @@ void Boid::swarm(vector <Boid> v)
 */
 	Pvector	R;
 	Pvector sum(0, 0);
+	float D;
+	float U;
+	float A = 2.0f;
+	float N = 0.3f;
+	float B = 1.0f;
+	float M = 0.5f;
 
-// Your code here..
+	D = R.magnitude();
+
+	for(auto i : v)
+	{
+		if (D > 0)
+		{
+			R = R.subTwoVector(location, i.location);
+			U = -A / pow(D, N) + B / pow(D, M);
+			R.normalize();
+			R.mulScalar(U);
+			sum.addVector(R);
+		}
+	}
+
+	sum.limit(maxForce);
 
 	applyForce(sum);
 	update();
